@@ -2889,3 +2889,110 @@ Scope, deliberately narrow:
   server stop, which is the documented reliable trigger for the hang, so
   `araco_gate6_evidence` reaping stays load-bearing for them.
 - The upstream defect is not fixed and filing it remains open.
+
+## 2026-08-23 — Raise the planned complete-suite simulated duration to its measured value
+
+Status: implemented, package suite green (434 tests, 0 failures).
+**End-to-end Gate 6 verification is still outstanding.** The rerun attempted on
+2026-08-23 at 11:48 is not evidence either way: an unrelated workload was
+consuming most of the machine, and the run failed at preflight gate 3, which
+never acquired motion and scored zero cases. That is the CPU-starvation
+signature, not a threshold outcome, and the run reached no repetition so it
+never evaluated `suite_wall_budget` at all. It is kept as
+`log/gate_6_20260823_suitebudget` and must not be cited as a result.
+Operator delegated the choice between raising the budget and trimming the
+suite.
+
+Decision: `planned_complete_suite_sim_s` goes from `100.0` to `145.0`, the
+measured simulated duration of the suite. Nothing else changes — not the
+formula, not the contract rule, not the `60 s` allowance, not the suite.
+
+Why raising rather than trimming: the suite is not slow. Median real-time
+factor is `0.92` against a contract floor of `0.80`, and all eight per-case
+physical repeatability checks pass. The suite got *bigger*, not slower, and
+trimming it would cut deliberate coverage to fit a stale number.
+
+Why `145.0` specifically. It is measured across the four simulation-paced
+gates, and it is stable:
+
+| Gate | Simulated seconds |
+| --- | --- |
+| 1 | 10.6 |
+| 2 | 10.8 |
+| 3 | 44.7 |
+| 4 | 78.7 |
+| **Total** | **144.8** |
+
+Across the three repetitions of `log/gate_6_20260822_forcekill_01` the total was
+144.8, 144.5, and 146.3 — a spread of 1.8 s. `145.0` is that measurement
+rounded, not a number chosen to make the check pass.
+
+Gate 5 is excluded on purpose. It is wall-paced, not simulation-paced: its
+scenarios pause the clock and remove components deliberately, so it runs at a
+real-time factor of 0.38-0.46 and its simulated duration measures the faults
+injected rather than any planned work. Counting it would put a fault-injection
+artifact into a number that means "how long the suite plans to simulate".
+
+The old `100.0` was very close to Gates 1, 2 and 4 alone (10.6 + 10.8 + 78.7 =
+100.1). Gate 3's 44.7 simulated seconds appear never to have been counted,
+which is the larger part of the shortfall — the number was incomplete before it
+was stale.
+
+Two things were deliberately left alone:
+
+- **`startup_artifact_allowance_s` stays at `60.0`.** An earlier draft raised it
+  to 145.0, on the measurement that roughly 145 s of each repetition does not
+  simulate — five sub-gate launches at about 20 s each, plus Gate 5's wall-paced
+  matrix and teardown. **That was wrong and is withdrawn.** The schema pins the
+  allowance as `const: 60.0`, as it pins every other Gate 6 tolerance;
+  `planned_complete_suite_sim_s` is the only value the schema leaves free
+  (`type: number, exclusiveMinimum: 0`). The contract is explicit about which
+  number tracks the suite and which are fixed, and the pinned one is not mine to
+  move without a decision of its own.
+- **The suite was not trimmed and no check was relaxed.**
+
+Consequence: the limit becomes `2 * 145.0 + 60.0 = 350.0 s`, against observed
+repetitions of 298.3 s, 292.1 s and 323.4 s.
+
+**The margin is thin and should be watched.** 26.6 s over the worst observed
+repetition is 8.2%, while the observed spread within a single run was already
+10.7% (292.1 to 323.4). A slower night could fail this check without anything
+being wrong. If that happens, the honest next step is a decision about the
+pinned `60 s` allowance, which was set when the suite ran fewer, longer-lived
+launches and now has to cover five separate ones — not another rise in the
+planned duration, which is a measured quantity and has no room to absorb it.
+
+Implementation:
+
+- `gazebo_baseline_v0.yaml`: `planned_complete_suite_sim_s` `100.0` -> `145.0`,
+  `artifact_version` `0.2.0` -> `0.3.0`.
+- `gate6_v0.yaml`: its exact dependency pin on the thresholds artifact follows
+  to `0.3.0`. The composer enforces exact dependency versions, so the pin is not
+  optional bookkeeping.
+- `araco_gate3_score` now reports `simulated_s`, mirroring Gate 4's existing
+  `simulated_s`/`wall_s`/`real_time_factor` block. Gate 3 was the one
+  simulation-paced gate whose duration could not be recovered from its own
+  evidence: its per-case records account for about 10 of its 44.7 simulated
+  seconds. The number is now auditable from any future run rather than being
+  taken on trust from this one.
+- `RUNTIME_TIMING_AND_SIMULATION_CONTRACT.md` records the planned duration, its
+  per-gate breakdown, why Gate 5 is excluded, and why the number changed.
+
+Not done, and why: Gate 5 was **not** instrumented to report simulated seconds.
+It was, briefly. With the instrumentation Gate 5 failed twice in three runs —
+once at startup, once on `acquire_before_joint_state_loss` — after eleven
+consecutive passes without it, and it passed twice more once reverted.
+
+**The obvious reading of that, that subscribing to `/clock` destabilised the
+most timing-sensitive scorer in the suite, is not established.** All five of
+those runs fall inside a six-minute window on 2026-08-23, and an unrelated
+workload on this machine was consuming most of the CPU around the same period —
+seven processes at 100% each, load average 10.3, measured directly at 11:50.
+CPU starvation produces exactly these symptoms, and it is the documented cause
+of the previous campaign's sub-gate failures. The two explanations are
+confounded and this evidence cannot separate them.
+
+The revert stands regardless, on a reason that does not depend on the cause:
+Gate 5's simulated duration is excluded from the budget, so the measurement was
+never needed. Adding load to that scorer to obtain a number nothing consumes is
+not worth even an unproven risk.

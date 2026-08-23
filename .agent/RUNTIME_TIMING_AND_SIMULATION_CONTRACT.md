@@ -607,6 +607,13 @@ all generic cadence, stride, clearance, and velocity-scale bounds still apply.
 - After startup, median real-time factor on the reference workstation is
   `≥ 0.80`; the complete suite wall time is no more than twice its planned
   simulated duration plus `60 s` startup/artifact allowance.
+- The planned simulated duration is `145 s`. It is measured, not asserted, and
+  tracks the suite as it grows: Gate 1 `10.6 s`, Gate 2 `10.8 s`, Gate 3
+  `44.7 s`, Gate 4 `78.7 s`, consistent to within `1.8 s` across three
+  repetitions. Gate 5 is excluded because it is wall-paced — it pauses the
+  clock and removes components deliberately, so its simulated duration measures
+  the faults injected rather than any planned work. It was `100 s` when Gates 3
+  and 5 were shorter and Gate 4 carried fewer pose cases.
 - Zero unclassified project `ERROR`/`FATAL`, sanitizer failure, process crash,
   lifecycle deadlock, or missing required artifact is allowed.
 - Each run records source/dependency identities, expanded-model and effective-

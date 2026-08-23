@@ -1066,13 +1066,23 @@ in both variants of the upstream defect, and Gate 6 passes twenty of its
 twenty-one checks including all three complete repetitions and every
 repetition-comparison check.
 
-**One decision is outstanding: `suite_wall_budget`.** All three repetitions
-completed and each exceeded the 260.0 s limit — 298.3 s, 292.1 s, 323.4 s. The
-limit is derived from `planned_complete_suite_sim_s`, which is still 100.0 while
-Gate 4 alone consumes 77.8 simulated seconds. Either the budget is stale and
-should be raised with its own decision entry, or the suite is genuinely too slow
-and should be trimmed. Both are contract changes, so it is the operator's call.
-Nothing was changed on this run.
+**`suite_wall_budget` was decided on 2026-08-23 and needs one clean
+verification run.** `planned_complete_suite_sim_s` was raised from 100.0 to
+145.0, its measured value across the four simulation-paced gates, which moves
+the limit to 350.0 s against observed repetitions of 298.3 s, 292.1 s and
+323.4 s. The suite was not trimmed: median real-time factor is 0.92 against a
+0.80 floor, so the suite grew rather than slowed. See the `DECISIONS.md` entry
+of 2026-08-23.
+
+Two things to carry forward:
+
+- **The margin is 8.2% over the worst observed repetition, while the spread
+  within a single run was already 10.7%.** If this check starts failing
+  intermittently, the next lever is the pinned 60 s allowance, not the planned
+  duration, which is measured and has no room to absorb anything.
+- **Verification is outstanding.** The 11:48 rerun was starved by an unrelated
+  workload on this machine and failed at preflight gate 3 with zero cases
+  scored. It proves nothing about the threshold and must not be cited.
 
 Required order:
 
@@ -1104,12 +1114,16 @@ Required order:
    explicit domains (`8463d3d`), and Gate 5's scored quiesce check was fixed by
    forcing the backend dead when the graceful stop hangs. Gate 6 now reaches
    twenty of twenty-one checks with three complete repetitions.
-8. **Current step. Decide `suite_wall_budget`** — raise the stale threshold with
-   its own decision entry, or trim the suite. Evidence is in the Gate 6 section
-   above. Then rerun Gate 6 alone; Gates 0-5 do not need rerunning unless their
-   inputs change. Before any sequential run, and after it, check
-   `pgrep -f '^gz sim'` and SIGKILL what it finds.
-9. Then run route 09.
+8. Done 2026-08-23. `suite_wall_budget` was decided: the planned simulated
+   duration was raised to its measured 145.0 s, nothing else changed. Gate 3
+   now reports `simulated_s` so the number stays auditable.
+9. **Current step. Rerun Gate 6 on a quiet machine** to confirm 21 of 21.
+   Gates 0-5 do not need rerunning unless their inputs change. Before any
+   sequential run, and after it, check `pgrep -f '^gz sim'` and SIGKILL what it
+   finds — and check `uptime` and `ps -eo pcpu,pid,args --sort=-pcpu | head`,
+   because a gate suite starved of CPU fails in ways that look like Araco
+   defects. This is how the 11:48 attempt was lost.
+10. Then run route 09.
 
 Reproduction for Defect C, which does not need the gate harness:
 

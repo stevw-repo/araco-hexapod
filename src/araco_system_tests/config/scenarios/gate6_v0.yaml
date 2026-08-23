@@ -14,7 +14,7 @@
   "dependencies": [
     {
       "artifact_id": "araco.system-tests.gazebo-baseline",
-      "artifact_version": "0.2.0"
+      "artifact_version": "0.3.0"
     }
   ],
   "data": {

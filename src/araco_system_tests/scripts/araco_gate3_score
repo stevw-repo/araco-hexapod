@@ -144,6 +144,7 @@ class Gate3Scorer(Node):
             ('combined_35', (0.007, -0.007, -0.0105, 0.0525, -0.0525, 0.070)),
         ]
         self.sim_time = None
+        self.sim_start = None
         self.latest_safety = None
         self.latest_safe = None
         self.latest_selected = None
@@ -212,6 +213,8 @@ class Gate3Scorer(Node):
 
     def _on_clock(self, message):
         self.sim_time = _seconds(message.clock)
+        if self.sim_start is None:
+            self.sim_start = self.sim_time
 
     def _on_safety(self, message):
         self.latest_safety = message
@@ -499,6 +502,12 @@ class Gate3Scorer(Node):
             'status': 'PASS' if passed else 'FAIL',
         })
 
+    def simulated_span(self):
+        """Return the simulated seconds this gate consumed, 0.0 if unclocked."""
+        if self.sim_time is None or self.sim_start is None:
+            return 0.0
+        return self.sim_time - self.sim_start
+
     def score(self, enable_accepted, release_returned_to_hold):
         checks = {
             'trusted_enable_accepted': enable_accepted,
@@ -516,6 +525,7 @@ class Gate3Scorer(Node):
                 'case_count': len(self.results),
                 'cases': self.results,
                 'safety_state_path': self.state_path,
+                'simulated_s': self.simulated_span(),
             },
         }
 
