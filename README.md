@@ -1,10 +1,9 @@
 # Araco: a four-DOF hexapod built from first principles
 
-<!-- SPDX-License-Identifier: MIT -->
 
 ![A clean CAD render of the complete Araco hexapod](docs/assets/readme/araco-hero.png)
 
-Araco is my research platform for studying how the geometry, locomotion, simulation, and perception of a many-legged robot fit together. It has six independently controlled legs, four rotary joints per leg, and a yaw joint for its RGB-D camera: **25 controlled joints in total**.
+(This readme is ai slop) Araco is my research platform for studying how the geometry, locomotion, simulation, and perception of a many-legged robot fit together. It has six independently controlled legs, four rotary joints per leg, and a yaw joint for its RGB-D camera: **25 controlled joints in total**.
 
 I began the wider Araco project in 2022 and this repository contains its third generation: a ground-up ROS 2 implementation built around a detailed digital twin. My aim was not only to make a robot walk, but to understand and document the complete chain that makes walking possible—from a desired body velocity, through gait phase and analytic inverse kinematics, to joint trajectories and simulated motion. The same model also carries an RGB-D/IMU sensor stack for visual odometry, mapping, and future autonomous navigation work.
 
