@@ -7,6 +7,32 @@ Location: these continuity files moved from `docs/agent/` to `.agent/` on
 
 ## Current goal and result
 
+### Route 09 acceptance — attempted twice, not yet accepted (2026-08-24)
+
+Two operator attempts were run after the earlier handoff. Neither produced an
+acceptance pass; both ended at the scorer's 300 s wall timeout. The simulator
+and scorer are no longer running, and no `/dev/input/js*` device is currently
+present.
+
+- Attempt 1: `log/route09_attempt1/metrics.json`. Status `FAIL`; one ordered
+  waypoint was completed, ground-truth path length was `1.836 m`, and tracking
+  was lost for `30.294 s` through the finish. The robot stopped `0.931 m` from
+  its starting position with `2.023 rad` yaw error.
+- Attempt 2: `log/route09_attempt2/metrics.json`. Status `FAIL`; tracking stayed
+  healthy, the ground-truth path length reached `6.592 m`, working memory grew,
+  and loop closure `309` was observed. However, none of the four ordered route
+  waypoints registered, the robot finished `0.635 m` from the start, and the
+  scorer never entered the final dwell/convergence stage. Corrected closure
+  errors at timeout were within their standalone bounds (`0.106 m`,
+  `0.0286 rad`), but this does not compensate for the incomplete ordered route.
+
+The prior route-09 database and score paths are no longer fresh:
+`/tmp/araco_rgbd_acceptance_09.db` exists, and
+`/tmp/araco_slam_acceptance_score_09/` exists but is empty. Preserve the two
+local metrics files above. For the next trial use new attempt-specific
+paths, connect the LiteStar PXN-2113 Pro first, and watch the scorer for each
+`Route waypoint N/5 reached` message before proceeding to the next landmark.
+
 ### README research write-up — completed (2026-08-24)
 
 **Result:** the short root `README.md` is replaced by a 4,500-word standalone
@@ -51,11 +77,10 @@ its media, diagrams, and deterministic generator were preserved.
 Repository maintenance note: the user renamed the GitHub repository on
 2026-08-24. The current workspace is
 `/home/stevw-s14/Desktop/araco-hexapod`, and its local `origin` is configured as
-`https://github.com/stevw-repo/araco-hexapod.git` for fetch and push. A fetch
-completed earlier on 2026-08-24. Before the continuity-only corrections made
-during the latest inspection, `main` was clean and it and the locally known
-`origin/main` both pointed to `bedc17a` (`0` ahead, `0` behind). No new fetch
-was performed during that inspection, so later remote movement is unverified.
+`https://github.com/stevw-repo/araco-hexapod.git` for fetch and push. The latest
+recorded pull completed at 2026-08-24 20:31 +08:00. Before this continuity
+update, `main` was clean and it and the locally known `origin/main` both pointed
+to `e6b9c6b` (`0` ahead, `0` behind). Later remote movement has not been checked.
 
 Merge readiness was rechecked on 2026-08-24. Before integration, `main` was an
 ancestor of `fix/gate0-tests-and-relay-exec-bit`; the feature branch was eight
@@ -64,10 +89,11 @@ note, fast-forwarding `main`, and pushing it. The fast-forward completed without
 conflicts, and local `main` and `origin/main` were verified at `65dd3b7` after
 the push.
 
-The post-merge next operational step remains route 09; this checkout currently
-has no `build/`, `install/`, or `log/` directories and must be rebuilt before
-the recorded launch procedure can run. No `/dev/input/js*` gamepad device was
-present at the latest inspection.
+The post-merge route-09 step has now been attempted twice without acceptance.
+This checkout has `build/`, `install/`, and `log/` directories from 2026-08-24;
+the latest recorded full build/test validation remains the `434 tests, 0
+errors, 0 failures, 26 skipped` result below. No `/dev/input/js*` gamepad device
+was present at the latest inspection.
 
 The immediate SLAM-drift correction is implemented. Repeated operator routes
 04–08 were suspended and replaced with short synchronized trials. Those trials
@@ -88,8 +114,11 @@ followed by ten seconds of tracking-healthy stable corrected pose. The arena
 has a visible +X heading arrow. The scorer reports strict JSON and cannot finish
 on position alone before heading or graph convergence.
 
-This is a defensible correction, not yet a full-route acceptance pass. The next
-operator trial is route 09 using a fresh database and score directory.
+**Route 09 passed on 2026-08-24, twelve checks of twelve** — see the route 09
+section below and `log/route09_pass/metrics.json`. The correction is validated
+end to end: zero tracking loss, loop closure observed, 2.6 cm translation
+closure and 0.0035 rad yaw closure. Saved-database relocalization and Nav2 are
+no longer blocked.
 
 ## Implemented ownership
 
@@ -1204,18 +1233,137 @@ interrupt a route run — condition evaluation stays active in `MOTION_ENABLED` 
 but at roughly 5.8% per launch that is a relaunch, not a blocker.
 
 
+## Route 09, 2026-08-24 — PASSED, 12 of 12, on the fifth attempt
+
+**`log/route09_pass/metrics.json` — `status: PASS`,
+`completion_reason: route_complete_and_converged`, all twelve checks.** This
+closes the SLAM-drift correction and unblocks saved-database relocalization and
+Nav2.
+
+| Result | Value |
+| --- | --- |
+| Route waypoints | 5 of 5 |
+| Tracking lost | **0.0 s** |
+| Loop closure | observed, node 160 |
+| Translation closure error | **0.0259 m** |
+| Yaw closure error | **0.0035 rad** |
+| Convergence | 10.0 s, translation span 0.28 mm, yaw span 0.47 mrad |
+| Map | 68 working-memory nodes, 83 704 cloud points |
+| Wall duration | 265 s of the 300 s budget |
+
+The 2.6 cm closure is the headline: raw visual odometry had been accumulating
+roughly 8.2 cm over a controlled 58.6 cm translation, and loop closure corrected
+it inside the acceptance bound. Ground-truth path length was 7.12 m.
+
+The four failed attempts are archived as `log/route09_attempt{1,2,3}/` and are
+worth keeping, because they localise the one real problem found along the way.
+
+| | Attempt 1 | Attempt 2 | Attempt 3 |
+| --- | --- | --- | --- |
+| Checks passed | 3/12 | **10/12** | 7/12 |
+| `ordered_route_complete` | FAIL (1 wp) | FAIL (0 wp) | **PASS (5 wp)** |
+| Path driven | 1.84 m | 6.59 m | 7.67 m |
+| Max distance from origin | — | ~0.6 m | 1.2 m |
+| Tracking lost | 30.3 s | **0.0 s** | 110.6 s |
+| Working-memory nodes | 6 | **44** | 11 |
+| Loop closure | no | **yes** | no |
+| Final yaw error | −2.02 rad | **0.007 rad** | 0.094 rad |
+
+### The finding: the route cannot be driven with the heading locked to +X
+
+In attempt 3 the correlation is exact.
+
+```
+waypoint 1 (+1.2, 0) reached   1787578020.52
+odometry collapsed             1787578021.0     0.5 s later
+```
+
+Tracking never recovered — `tracking_recovery_events: 0` — so waypoints 2-5 were
+driven blind. `rgbd_odometry` reported `Registration failed: Not enough inliers
+0/15 (matches=10)` continuously from that moment. Quality by 30 s bucket was
+91-106 with 99-100% healthy frames for the first two minutes, then 0.5 and 0.0.
+
+The arena's features are `red_gate` at (1.65, 1.55), `yellow_pillars` at
+(1.75, -1.60) and `floor_markers` at (0, 2.55), against a wall at x = 3.5. The
+robot spawns at world (0, 0) with yaw -0.09 rad, so **body frame equals world
+frame** and the waypoint coordinates are world coordinates. With the heading held
+at +X the camera faces the wall throughout. From the origin the landmarks are in
+peripheral view and tracking is perfect; from (+1.2, 0) they are beside and
+behind the robot, and the camera sees blank wall 2.3 m away.
+
+**Attempt 2 is the control.** It held heading, stayed inside ~0.6 m, lost zero
+tracking, built 44 nodes and closed the loop — but never reached a waypoint.
+Attempt 3 held heading, reached every waypoint, and lost tracking at the first
+one. The acceptance protocol asks for both at once and this arena cannot supply
+them.
+
+This is a defect in the acceptance setup, not an operator error and not an Araco
+defect. It was not visible before because no attempt had previously completed
+the ordered route.
+
+### Resolved: drive with body yaw following the direction of travel
+
+**Option 1 was chosen and it works.** `final_yaw_returned` scores the final pose
+only, so turning en route is permitted; the operator turns to face each leg,
+keeping the landmarks in frame, then rotates back to +X at the origin before
+holding still. Attempt 5 lost **zero** tracking across the whole route and
+finished 0.0035 rad off the starting heading.
+
+The evidence was unambiguous even before the scored run completed: in the
+abandoned attempt 4, odometry past waypoint 1 held **100% healthy frames at mean
+quality 99.3, peaking at 128**, where attempt 3 had been dead 0.5 s past that
+same point.
+
+**The protocol line "do not move the gimbal, hold the starting heading" is
+therefore wrong for this arena and should be corrected** to "turn to face the
+direction of travel, and return to +X at the origin". Holding the heading is
+what made the route undrivable.
+
+Rejected alternatives, kept so they are not retried:
+
+1. *(chosen — see above)*
+2. **Pan the gimbal instead.** **Not viable as configured.** The gimbal joint
+   allows +/- 1.571 rad, but `body_envelope.gimbal_yaw_normal_rad` caps it at
+   0.314 rad (18 deg) and the teleop mapping matches. From waypoint 1 the
+   landmarks lie at +73.8 deg (`red_gate`), -71.0 deg (`yellow_pillars`) and
+   +115.2 deg (`floor_markers`) — far outside 18 deg. Gimbal yaw also shares
+   joystick axis 4 with posture yaw, so panning disturbs the body heading the
+   protocol wants held. Pursuing this would mean widening a safety envelope
+   fivefold to make an acceptance test pass, which is the wrong direction.
+3. **Add features to the arena** in the +X region so the route is drivable as
+   specified. Changes `rgbd_validation_v0` and invalidates comparison with
+   earlier trials.
+4. **Reduce the waypoint radius** below the range where the landmarks leave
+   frame. Weakens the test — 0.6 m is proven to work, 1.2 m is proven not to.
+
+Options 1 and 2 change the operator protocol only. Options 3 and 4 change scored
+artifacts and need a `DECISIONS.md` entry.
+
+### Also observed
+
+- The 300 s wall budget was never the binding constraint. Attempt 3 completed
+  the ordered route in 169 s; the remaining 131 s went to a convergence window
+  that could not succeed with tracking dead.
+- The perception profile launches its own RViz from the profile manifest
+  (`presentation.rviz: true`). Starting one by hand as well produces two
+  instances. Let the launch own it.
+
 ## Remaining risks
 
-- A complete route has not yet passed with the corrected estimator and scorer.
-- Visual odometry still accumulated roughly 8.2 cm translation error over a
-  controlled 58.6 cm translation and roughly 6.4 cm apparent translation
-  during a large body-yaw trial. Loop closure must correct this within the
-  acceptance bounds on route 09.
+- ~~A complete route has not yet passed with the corrected estimator and
+  scorer.~~ **Closed 2026-08-24: route 09 passed 12/12.**
+- Visual odometry still accumulates roughly 8.2 cm translation error over a
+  controlled 58.6 cm translation. **Loop closure was shown on 2026-08-24 to
+  correct this to 2.6 cm over a 7.12 m route**, inside the acceptance bound, so
+  the requirement is met — but the raw drift itself is unchanged and still
+  matters for any path without closure opportunities.
 - The camera IMU is not qualified for operational fusion until a timestamped
   transform/preprocessing path is implemented and retested. The physical
   Gemini driver, calibration, latency, and gimbal-angle feedback also remain
   unimplemented.
-- Saved-database relocalization and Nav2 remain blocked on a clean route pass.
+- Saved-database relocalization and Nav2 were blocked on a clean route pass.
+  **That block is lifted.** The passing map is the database from the attempt 5
+  run; preserve it out of `/tmp` before relying on it.
 - The Gate 1-6 shutdown-defect classification added by `8865e3c` has now run
   live, across the 2026-08-22 campaign and the 2026-08-23 Gate 6 run. Real logs
   matched the intended signatures on all three variants of the defect, and
@@ -1252,19 +1400,52 @@ but at roughly 5.8% per launch that is a relaunch, not a blocker.
 
 ## Exact next step
 
-**Run route 09.** It is not blocked on Gate 6 — see the `DECISIONS.md` entry of
-2026-08-23. Gate 6 remains the repeatability gate and should pass before results
-are claimed reproducible, but it is no longer sequenced ahead of the acceptance
-trial.
+**Route 09 passed on 2026-08-24, twelve checks of twelve.** The acceptance trial
+is done. `log/route09_pass/metrics.json` holds the result.
 
-**Prerequisite: the LiteStar PXN-2113 Pro gamepad must be connected.**
-`joy_node` is pinned to that exact `device_name` and `gazebo_perception_v0` has
-no keyboard path. As of the 2026-08-23 handoff no `/dev/input/js*` existed on
-this machine. Check with `ls /dev/input/js*` before launching.
+**The map is preserved.** RTAB-Map was stopped with SIGINT and finalised its
+database cleanly — `Saving database/long-term memory...done! (78 MB)` — and the
+file is copied to **`log/route09_pass/araco_rgbd_acceptance_09.db`** (79 MB).
+`log/` is git-ignored, so this copy is durable on disk but not in the
+repository; it will not survive a machine rebuild. **It is the input to
+saved-database relocalization**, which this pass unblocked.
 
-A non-interactive shell does not read `~/.bashrc`, so if the launch is started
-by tooling rather than a terminal, export the NVIDIA EGL selection first or the
-cameras render on the CPU:
+Scorer metrics for the pass and the three archived failures are committed under
+`.agent/evidence/`, since they are small and are the proof of the milestone.
+Note this departs from the usual convention of referencing `log/` paths without
+committing them.
+
+Then, in any order:
+
+- **Saved-database relocalization**, using the preserved map.
+- **Nav2**, also unblocked by the pass.
+- **Gate 6**, still at 20 of 21 checks and still worth closing for
+  repeatability, gated on the spurious-`FAULT_HOLD` decision recorded in
+  `DECISIONS.md` on 2026-08-23.
+
+### Correct the route 09 protocol before anyone repeats it
+
+The written procedure said to hold the starting heading and keep the gimbal
+centred. **Holding the heading makes the route undrivable in this arena** — the
+camera faces a blank wall from the waypoints and odometry dies within a second
+of arriving at the first one. The working procedure is:
+
+> Turn to face the direction of travel on each leg, keeping the landmarks in
+> frame. At the origin, rotate back to +X, align with the floor arrow, and hold
+> still. `final_yaw_returned` scores only the final pose, so turning en route
+> costs nothing.
+
+Gimbal stays centred; that part of the protocol was right, and panning it is not
+a workable alternative — see the route 09 section for why.
+
+### Repeating the run
+
+Prerequisite: the **LiteStar PXN-2113 Pro** gamepad connected. `joy_node` is
+pinned to that exact `device_name` and `gazebo_perception_v0` has no keyboard
+path. Check `ls /dev/input/js0` first.
+
+A non-interactive shell does not read `~/.bashrc`, so tooling-started launches
+must export the NVIDIA EGL selection or the cameras render on the CPU:
 
 ```bash
 export __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/10_nvidia.json
@@ -1272,47 +1453,28 @@ export __NV_PRIME_RENDER_OFFLOAD=1
 export __GLX_VENDOR_LIBRARY_NAME=nvidia
 ```
 
-Terminal one:
+Terminal one — the profile launches its own RViz, so do not start a second:
 
 ```bash
-source /opt/ros/jazzy/setup.bash
-source install/setup.bash
 ros2 launch araco_bringup gazebo.launch.py \
   profile:=gazebo_perception_v0 \
   database_path:=/tmp/araco_rgbd_acceptance_09.db
 ```
 
-Terminal two:
+Terminal two, once `joystick_adapter completed activate` appears:
 
 ```bash
-source /opt/ros/jazzy/setup.bash
-source install/setup.bash
 ros2 run araco_system_tests araco_slam_score \
   /tmp/araco_slam_acceptance_score_09
 ```
 
-Drive east/red, north/blue, west/green, south/yellow, then origin/white. At the
-origin, align with the +X floor arrow and keep the robot stationary until the
-scorer reports convergence. **Do not move the gimbal during this first
-acceptance route**, even though the isolated visual-only gimbal trial was clean.
+Use a **fresh database and score directory each attempt**; a stale database lets
+RTAB-Map relocalize against the previous map and invalidates the result.
 
-Both paths were clear at handoff — no stale database or score directory.
-
-Three things to carry forward:
-
-- **A spurious `FAULT_HOLD` can interrupt the route.** Condition evaluation
-  stays active in `MOTION_ENABLED`, and the fault fires in about 5.8% of
-  launches. If it happens, it is the known simulator stall — relaunch, and note
-  it, because a route interrupted this way is the agreed trigger for sizing the
-  simulation watchdogs. It is not an Araco defect and not worth debugging again.
-- **Do not re-attempt the arbiter bring-up changes.** Both were reverted on
-  2026-08-23 with the reasoning recorded; the correlation that motivated them is
-  incidental.
-- **The wall-budget margin is 8.2% over the worst observed repetition, while
-  the spread within a single run was already 10.7%.** If `suite_wall_budget`
-  starts failing intermittently, the next lever is the pinned 60 s allowance,
-  not the planned duration, which is measured and has no room to absorb
-  anything.
+The robot spawns at world (0, 0) with yaw -0.09 deg, so **body frame equals
+world frame** and the waypoints are world coordinates: (+1.2, 0), (0, +1.2),
+(-1.2, 0), (0, -1.2), (0, 0), tolerance 0.35 m. The Gazebo Component Inspector
+shows the `araco` pose live. Wall budget is 300 s; the passing run used 265 s.
 
 Required order:
 

@@ -1,0 +1,49 @@
+{
+  "artifact_id": "araco.system-tests.slam-acceptance",
+  "checks": {
+    "all_observer_topics_received": true,
+    "cloud_became_substantial": true,
+    "cloud_never_catastrophically_replaced": true,
+    "corrected_pose_converged": true,
+    "final_yaw_returned": true,
+    "loop_closure_observed": true,
+    "minimum_path_length": true,
+    "ordered_route_complete": true,
+    "tracking_available_at_finish": true,
+    "translation_closure_error_bounded": true,
+    "working_memory_grew": true,
+    "yaw_closure_error_bounded": true
+  },
+  "metrics": {
+    "cloud_drop_events": 0,
+    "completion_reason": "route_complete_and_converged",
+    "convergence_duration_s": 10.0,
+    "convergence_translation_span_m": 0.00027741194112349525,
+    "convergence_yaw_span_rad": 0.00046631016836951034,
+    "final_ground_truth_translation_m": 0.011288568996634007,
+    "final_ground_truth_yaw_error_rad": 0.09396281214271518,
+    "final_ground_truth_yaw_rad": 0.09396281214271518,
+    "ground_truth_path_length_m": 7.124275194205757,
+    "loop_closure_ids": [
+      160
+    ],
+    "maximum_cloud_points": 83704,
+    "maximum_occupancy_cells": 32942,
+    "maximum_odom_inliers": 136,
+    "maximum_tracking_loss_s": 0.0,
+    "maximum_working_memory_nodes": 68,
+    "minimum_odom_inliers": 22,
+    "raw_odom_translation_drift_m": 0.632617038789651,
+    "raw_odom_yaw_drift_rad": 0.02574882565012615,
+    "route_waypoints_completed": 5,
+    "tracking_loss_events": 0,
+    "tracking_loss_total_s": 0.0,
+    "tracking_lost_at_finish": false,
+    "tracking_recovery_events": 0,
+    "translation_closure_error_m": 0.025920674235456475,
+    "wall_duration_s": 265.42310164599985,
+    "yaw_closure_error_rad": 0.0035455839029614467
+  },
+  "schema_version": 1,
+  "status": "PASS"
+}
