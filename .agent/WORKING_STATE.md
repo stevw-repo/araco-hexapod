@@ -1406,8 +1406,11 @@ is done. `log/route09_pass/metrics.json` holds the result.
 **The map is preserved.** RTAB-Map was stopped with SIGINT and finalised its
 database cleanly — `Saving database/long-term memory...done! (78 MB)` — and the
 file is copied to **`log/route09_pass/araco_rgbd_acceptance_09.db`** (79 MB).
-`log/` is git-ignored, so this copy is durable on disk but not in the
-repository; it will not survive a machine rebuild. **It is the input to
+`log/` is git-ignored, so that copy is durable on disk but not in the
+repository. **A verified backup exists off the system disk** at
+`/media/stevw-s14/DATA-ST/araco-shared/slam-maps/route09_pass_20260824/`
+(external drive `DATA-ST`), with `metrics.json` and a `README.txt` recording
+provenance. The copy was checked by SHA-256 against the source. **It is the input to
 saved-database relocalization**, which this pass unblocked.
 
 Scorer metrics for the pass and the three archived failures are committed under
