@@ -1,6 +1,7 @@
 # Araco Hexapod — Project Context
 
-Last verified: 2026-08-18
+Last broadly verified: 2026-08-18
+Repository location and revision reverified: 2026-08-24
 
 ## Goal
 
@@ -8,7 +9,7 @@ Build a new ROS 2 software system for the Araco hexapod from the ground up, incl
 
 ## Repositories and source material
 
-- New writable repository: `/home/stevw-s14/Desktop/Araco Project/araco-hexapod-temp`
+- Current writable repository: `/home/stevw-s14/Desktop/araco-hexapod`
 - Legacy workspace (read-only reference): `/home/stevw-s14/Desktop/Araco`
 - Documentation repository: `https://github.com/stevw-repo/Araco-Hexapod`
 - Documentation repository was inspected at commit `cacdaddab38624e96855ba56a17da0e5a7f7fb5b` (2026-03-05).

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="480" viewBox="0 0 1200 480" role="img" aria-labelledby="title desc">
+<title id="title">Araco RGB-D mapping pipeline</title>
+<desc id="desc">The simulated Gemini-style color and depth streams flow through registration, visual odometry, and RTAB-Map outputs.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#172233"/></marker>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3977d4"/></marker>
+<marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#dc6b32"/></marker>
+</defs>
+<rect width="1200" height="480" fill="#ffffff"/>
+<text x="44" y="48" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27" font-weight="600" fill="#172233" text-anchor="start">From stereo depth to a map of the environment</text>
+<text x="44" y="77" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="400" fill="#5b6678" text-anchor="start">The yaw gimbal carries the Gemini 335 model; simulated RGB-D streams feed a six-DoF visual mapping pipeline.</text>
+<rect x="44" y="128" width="190" height="88" rx="14" fill="#ffffff" stroke="#3977d4" stroke-width="2"/>
+<rect x="44" y="128" width="8" height="88" rx="4" fill="#3977d4"/>
+<text x="68" y="162" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#172233" text-anchor="start">Gazebo scene</text>
+<text x="68" y="189" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#5b6678" text-anchor="start">landmarks + lighting</text>
+<rect x="270" y="128" width="190" height="88" rx="14" fill="#ffffff" stroke="#168c7a" stroke-width="2"/>
+<rect x="270" y="128" width="8" height="88" rx="4" fill="#168c7a"/>
+<text x="294" y="162" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#172233" text-anchor="start">Gemini-like sensor</text>
+<text x="294" y="189" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#5b6678" text-anchor="start">RGB · depth · IMU</text>
+<rect x="496" y="128" width="190" height="88" rx="14" fill="#ffffff" stroke="#7457c8" stroke-width="2"/>
+<rect x="496" y="128" width="8" height="88" rx="4" fill="#7457c8"/>
+<text x="520" y="162" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#172233" text-anchor="start">RGB-D registration</text>
+<text x="520" y="189" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#5b6678" text-anchor="start">aligned color + depth</text>
+<rect x="722" y="128" width="190" height="88" rx="14" fill="#ffffff" stroke="#dc6b32" stroke-width="2"/>
+<rect x="722" y="128" width="8" height="88" rx="4" fill="#dc6b32"/>
+<text x="746" y="162" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#172233" text-anchor="start">Visual odometry</text>
+<text x="746" y="189" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#5b6678" text-anchor="start">frame-to-map 6-DoF</text>
+<rect x="948" y="128" width="190" height="88" rx="14" fill="#ffffff" stroke="#c94d58" stroke-width="2"/>
+<rect x="948" y="128" width="8" height="88" rx="4" fill="#c94d58"/>
+<text x="972" y="162" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" fill="#172233" text-anchor="start">RTAB-Map</text>
+<text x="972" y="189" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#5b6678" text-anchor="start">loop closure + graph</text>
+<line x1="242" y1="172" x2="269" y2="172" stroke="#172233" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="468" y1="172" x2="495" y2="172" stroke="#172233" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="694" y1="172" x2="721" y2="172" stroke="#172233" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="920" y1="172" x2="947" y2="172" stroke="#172233" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)"/>
+<rect x="176" y="315" width="250" height="86" rx="12" fill="#f5f7fb" stroke="#3977d4" stroke-width="1.8"/>
+<text x="196" y="347" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="600" fill="#3977d4" text-anchor="start">registered images</text>
+<text x="196" y="376" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#5b6678" text-anchor="start">424 × 240 · 15 Hz</text>
+<rect x="470" y="315" width="250" height="86" rx="12" fill="#f5f7fb" stroke="#168c7a" stroke-width="1.8"/>
+<text x="490" y="347" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="600" fill="#168c7a" text-anchor="start">2D occupancy grid</text>
+<text x="490" y="376" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#5b6678" text-anchor="start">5 cm cells</text>
+<rect x="764" y="315" width="250" height="86" rx="12" fill="#f5f7fb" stroke="#7457c8" stroke-width="1.8"/>
+<text x="784" y="347" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="16" font-weight="600" fill="#7457c8" text-anchor="start">accumulated 3D cloud</text>
+<text x="784" y="376" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#5b6678" text-anchor="start">colored geometry</text>
+<line x1="1043" y1="219" x2="1043" y2="275" stroke="#172233" stroke-width="2" stroke-linecap="round"/>
+<line x1="301" y1="275" x2="1043" y2="275" stroke="#172233" stroke-width="2" stroke-linecap="round"/>
+<line x1="301" y1="275" x2="301" y2="309" stroke="#172233" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="595" y1="275" x2="595" y2="309" stroke="#172233" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)"/>
+<line x1="889" y1="275" x2="889" y2="309" stroke="#172233" stroke-width="2" stroke-linecap="round" marker-end="url(#arrow)"/>
+<text x="600" y="450" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="400" fill="#5b6678" text-anchor="middle">Simulator ground truth is used for observation and scoring, never as an input to the estimator.</text>
+</svg>

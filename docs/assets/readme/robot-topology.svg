@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+<title id="title">Araco joint topology and tripod groups</title>
+<desc id="desc">Top view of the six four-joint legs, one gimbal joint, and alternating tripod groups.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#172233"/></marker>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3977d4"/></marker>
+<marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#dc6b32"/></marker>
+</defs>
+<rect width="1200" height="720" fill="#ffffff"/>
+<text x="44" y="48" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27" font-weight="600" fill="#172233" text-anchor="start">Six four-joint legs plus a yaw gimbal</text>
+<text x="44" y="77" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="400" fill="#5b6678" text-anchor="start">Tripod A and Tripod B alternate support; every leg uses the same 43–120–120–50 mm chain.</text>
+<rect x="485" y="280" width="230" height="160" rx="55" fill="#f5f7fb" stroke="#172233" stroke-width="2"/>
+<text x="600" y="352" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21" font-weight="600" fill="#172233" text-anchor="middle">base_link</text>
+<text x="600" y="382" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#5b6678" text-anchor="middle">1 gimbal yaw joint</text>
+<circle cx="600" cy="242" r="22" fill="#ffffff" stroke="#7457c8" stroke-width="3"/>
+<line x1="600" y1="280" x2="600" y2="264" stroke="#7457c8" stroke-width="4" stroke-linecap="round"/>
+<polyline points="691.15,318.17 718.83,298.41 767.66,263.55 816.49,228.69 840.91,211.25" fill="none" stroke="#3977d4" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="691.1543871462038" cy="318.16546844131403" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<text x="709.1543871462038" y="305.16546844131403" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#3977d4" text-anchor="start">LF · A</text>
+<circle cx="718.82625467273" cy="298.4102729830457" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<circle cx="767.658962072482" cy="263.5481633508074" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<circle cx="816.4916694722341" cy="228.68605371856907" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<circle cx="840.9080231721101" cy="211.25499890244993" r="6" fill="#3977d4" stroke="#3977d4" stroke-width="2"/>
+<polyline points="600.00,288.00 600.00,254.00 600.00,194.00 600.00,134.00 600.00,104.00" fill="none" stroke="#dc6b32" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="600.0" cy="288.0" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<text x="618.0" y="275.0" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#dc6b32" text-anchor="start">LM · B</text>
+<circle cx="600.0" cy="254.0" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<circle cx="600.0" cy="194.0" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<circle cx="600.0" cy="134.0" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<circle cx="600.0" cy="104.0" r="6" fill="#dc6b32" stroke="#dc6b32" stroke-width="2"/>
+<polyline points="508.95,318.07 481.31,298.27 432.53,263.33 383.75,228.39 359.37,210.92" fill="none" stroke="#3977d4" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="508.94937184481233" cy="318.07219323426614" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<text x="490.94937184481233" y="305.07219323426614" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#3977d4" text-anchor="end">LR · A</text>
+<circle cx="481.3090025834161" cy="298.27295115044734" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<circle cx="432.53188035742266" cy="263.33311217900246" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<circle cx="383.7547581314293" cy="228.39327320755754" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<circle cx="359.3661970184326" cy="210.9233537218351" r="6" fill="#3977d4" stroke="#3977d4" stroke-width="2"/>
+<polyline points="691.15,401.83 718.83,421.59 767.66,456.45 816.49,491.31 840.91,508.75" fill="none" stroke="#dc6b32" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="691.1543871462038" cy="401.83453155868597" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<text x="709.1543871462038" y="388.83453155868597" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#dc6b32" text-anchor="start">RF · B</text>
+<circle cx="718.82625467273" cy="421.5897270169543" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<circle cx="767.658962072482" cy="456.4518366491926" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<circle cx="816.4916694722341" cy="491.3139462814309" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<circle cx="840.9080231721101" cy="508.7450010975501" r="6" fill="#dc6b32" stroke="#dc6b32" stroke-width="2"/>
+<polyline points="600.00,432.00 600.00,466.00 600.00,526.00 600.00,586.00 600.00,616.00" fill="none" stroke="#3977d4" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="600.0" cy="432.0" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<text x="618.0" y="419.0" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#3977d4" text-anchor="start">RM · A</text>
+<circle cx="600.0" cy="466.0" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<circle cx="600.0" cy="526.0" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<circle cx="600.0" cy="586.0" r="8" fill="#ffffff" stroke="#3977d4" stroke-width="3"/>
+<circle cx="600.0" cy="616.0" r="6" fill="#3977d4" stroke="#3977d4" stroke-width="2"/>
+<polyline points="508.95,401.93 481.31,421.73 432.53,456.67 383.75,491.61 359.37,509.08" fill="none" stroke="#dc6b32" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="508.94937184481233" cy="401.92780676573386" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<text x="490.94937184481233" y="388.92780676573386" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#dc6b32" text-anchor="end">RR · B</text>
+<circle cx="481.3090025834161" cy="421.72704884955266" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<circle cx="432.53188035742266" cy="456.66688782099754" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<circle cx="383.7547581314293" cy="491.6067267924425" r="8" fill="#ffffff" stroke="#dc6b32" stroke-width="3"/>
+<circle cx="359.3661970184326" cy="509.07664627816496" r="6" fill="#dc6b32" stroke="#dc6b32" stroke-width="2"/>
+<circle cx="152" cy="650" r="7" fill="#ffffff" stroke="#172233" stroke-width="2"/>
+<line x1="160" y1="650" x2="227" y2="650" stroke="#172233" stroke-width="5" stroke-linecap="round"/>
+<text x="152" y="685" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#172233" text-anchor="start">q1  coxa</text>
+<text x="152" y="707" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" font-weight="400" fill="#5b6678" text-anchor="start">43 mm</text>
+<circle cx="377" cy="650" r="7" fill="#ffffff" stroke="#172233" stroke-width="2"/>
+<line x1="385" y1="650" x2="452" y2="650" stroke="#172233" stroke-width="5" stroke-linecap="round"/>
+<text x="377" y="685" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#172233" text-anchor="start">q2  femur</text>
+<text x="377" y="707" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" font-weight="400" fill="#5b6678" text-anchor="start">120 mm</text>
+<circle cx="602" cy="650" r="7" fill="#ffffff" stroke="#172233" stroke-width="2"/>
+<line x1="610" y1="650" x2="677" y2="650" stroke="#172233" stroke-width="5" stroke-linecap="round"/>
+<text x="602" y="685" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#172233" text-anchor="start">q3  tibia</text>
+<text x="602" y="707" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" font-weight="400" fill="#5b6678" text-anchor="start">120 mm</text>
+<circle cx="827" cy="650" r="7" fill="#ffffff" stroke="#172233" stroke-width="2"/>
+<line x1="835" y1="650" x2="902" y2="650" stroke="#172233" stroke-width="5" stroke-linecap="round"/>
+<text x="827" y="685" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#172233" text-anchor="start">q4  foot</text>
+<text x="827" y="707" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="13" font-weight="400" fill="#5b6678" text-anchor="start">50 mm</text>
+<rect x="935" y="610" width="210" height="90" rx="10" fill="#ffffff" stroke="#d9e0ea" stroke-width="1.5"/>
+<line x1="958" y1="637" x2="1002" y2="637" stroke="#3977d4" stroke-width="7" stroke-linecap="round"/>
+<text x="1015" y="642" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#172233" text-anchor="start">Tripod A</text>
+<line x1="958" y1="671" x2="1002" y2="671" stroke="#dc6b32" stroke-width="7" stroke-linecap="round"/>
+<text x="1015" y="676" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#172233" text-anchor="start">Tripod B</text>
+</svg>

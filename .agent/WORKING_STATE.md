@@ -7,13 +7,55 @@ Location: these continuity files moved from `docs/agent/` to `.agent/` on
 
 ## Current goal and result
 
+### README research write-up — completed (2026-08-24)
+
+**Result:** the short root `README.md` is replaced by a 4,500-word standalone
+research write-up in the user's personal voice. It teaches the physical design,
+software decomposition, coordinate frames, four-DOF FK/IK derivation,
+planted-foot body transforms and foot-orientation projection, transactional
+six-leg solving, responsive tripod scheduling, the exact piecewise gait curves,
+translation/yaw blending, CAD-to-Gazebo modelling, mass research, and RGB-D
+visual mapping. Intuition is paired with university-level equations.
+
+The requested exclusions are retained: there is no build/reproduction or
+troubleshooting guide, gate/test report, detailed supervision/safety chapter,
+strict configuration/reproducibility chapter, dedicated negative-findings
+section, limitations/roadmap, or standalone references/license chapter.
+Necessary qualifications remain adjacent to physical-backend, dynamics, and
+perception claims. Early generations receive one introductory sentence rather
+than a dedicated comparison.
+
+**Media and figures:** authentic source material was reduced to a local hero
+render, a 1.5 MB physical-demo MP4, and a poster frame under
+`docs/assets/readme/`. Eight replacement SVGs use one consistent visual language:
+system overview, robot topology/tripod groups, leg IK geometry, planted-foot
+projection, exact gait curves, motion blending, digital-twin construction, and
+the perception pipeline. `tools/readme_assets/generate_readme_assets.py`
+deterministically regenerates all eight. The old technical screenshots and the
+two-page handwritten IK PDF were used only as research references.
+
+**Validation performed:** the generator ran twice with identical SHA-256 hashes
+for all eight SVGs; `python3 -m py_compile` passed; all eight generated files
+parsed as XML; a local checker found no missing README asset links or TOC
+anchors; and `git diff --check` passed. All eight SVGs were also rendered in
+headless Chromium and visually inspected before temporary QA rasters were
+removed. No ROS build or test run was needed because the implementation code
+was not changed. No commit or push was made.
+
+**License request withdrawn (2026-08-24):** the temporary repository-wide
+license-removal pass was reverted at the user's request. The original MIT
+license files, SPDX declarations, ROS package metadata, asset-rights records,
+generated meshes, and license checks remain in place. The completed README and
+its media, diagrams, and deterministic generator were preserved.
+
 Repository maintenance note: the user renamed the GitHub repository on
-2026-08-24. The local `origin` was updated and locally verified as
-`https://github.com/stevw-repo/Araco-Hexapod.git` for both fetch and push. A
-2026-08-24 fetch completed, and the current
-`fix/gate0-tests-and-relay-exec-bit` branch matched its upstream at that point
-(`0` ahead, `0` behind). The continuity updates are being checkpointed on this
-branch as the user-requested synchronization.
+2026-08-24. The current workspace is
+`/home/stevw-s14/Desktop/araco-hexapod`, and its local `origin` is configured as
+`https://github.com/stevw-repo/araco-hexapod.git` for fetch and push. A fetch
+completed earlier on 2026-08-24. Before the continuity-only corrections made
+during the latest inspection, `main` was clean and it and the locally known
+`origin/main` both pointed to `bedc17a` (`0` ahead, `0` behind). No new fetch
+was performed during that inspection, so later remote movement is unverified.
 
 Merge readiness was rechecked on 2026-08-24. Before integration, `main` was an
 ancestor of `fix/gate0-tests-and-relay-exec-bit`; the feature branch was eight
@@ -21,6 +63,11 @@ commits ahead and zero behind. The user approved committing the verification
 note, fast-forwarding `main`, and pushing it. The fast-forward completed without
 conflicts, and local `main` and `origin/main` were verified at `65dd3b7` after
 the push.
+
+The post-merge next operational step remains route 09; this checkout currently
+has no `build/`, `install/`, or `log/` directories and must be rebuilt before
+the recorded launch procedure can run. No `/dev/input/js*` gamepad device was
+present at the latest inspection.
 
 The immediate SLAM-drift correction is implemented. Repeated operator routes
 04–08 were suspended and replaced with short synchronized trials. Those trials

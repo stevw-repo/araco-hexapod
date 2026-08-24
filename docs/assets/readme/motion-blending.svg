@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="590" viewBox="0 0 1200 590" role="img" aria-labelledby="title desc">
+<title id="title">Translation and yaw blending</title>
+<desc id="desc">Top-view construction of translation and rotation foot displacement with relative command weighting.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#172233"/></marker>
+<marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3977d4"/></marker>
+<marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#dc6b32"/></marker>
+</defs>
+<rect width="1200" height="590" fill="#ffffff"/>
+<text x="44" y="48" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="27" font-weight="600" fill="#172233" text-anchor="start">Translation and body yaw are blended as foot-space motion</text>
+<text x="44" y="77" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="400" fill="#5b6678" text-anchor="start">The stronger command sets overall magnitude; relative input magnitudes decide the translation/rotation weights.</text>
+<circle cx="350" cy="335" r="114" fill="#f5f7fb" stroke="#172233" stroke-width="2"/>
+<circle cx="350" cy="335" r="6" fill="#172233" stroke="#172233" stroke-width="2"/>
+<text x="350" y="342" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#ffffff" text-anchor="middle">C</text>
+<line x1="350" y1="335" x2="505" y2="230" stroke="#d9e0ea" stroke-width="3" stroke-linecap="round" stroke-dasharray="7 6"/>
+<circle cx="505" cy="230" r="9" fill="#ffffff" stroke="#172233" stroke-width="3"/>
+<text x="520" y="220" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="600" fill="#172233" text-anchor="start">nominal foot p</text>
+<line x1="505" y1="230" x2="639" y2="174" stroke="#3977d4" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-blue)"/>
+<text x="650" y="161" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="400" fill="#3977d4" text-anchor="start">T · translation</text>
+<line x1="505" y1="230" x2="587" y2="352" stroke="#dc6b32" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow-orange)"/>
+<text x="594" y="378" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15" font-weight="400" fill="#dc6b32" text-anchor="start">R · yaw arc</text>
+<line x1="505" y1="230" x2="627" y2="258" stroke="#172233" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+<text x="646" y="281" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="17" font-weight="600" fill="#172233" text-anchor="start">Δp</text>
+<path d="M 423 251 A 92 92 0 0 1 448 399" fill="none" stroke="#dc6b32" stroke-width="3" marker-end="url(#arrow-orange)"/>
+<text x="423" y="426" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#dc6b32" text-anchor="middle">rotation about base origin</text>
+<rect x="735" y="125" width="421" height="385" rx="14" fill="#ffffff" stroke="#d9e0ea" stroke-width="1.5"/>
+<text x="766" y="165" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20" font-weight="600" fill="#172233" text-anchor="start">Relative-magnitude mixing</text>
+<text x="775" y="211" font-family="Cambria Math,STIX Two Math,serif" font-size="20" font-weight="400" fill="#172233" text-anchor="start">uₜ = ‖vxy‖ / vscale</text>
+<text x="775" y="256" font-family="Cambria Math,STIX Two Math,serif" font-size="20" font-weight="400" fill="#172233" text-anchor="start">uᵣ = |ω| / ωscale</text>
+<text x="775" y="301" font-family="Cambria Math,STIX Two Math,serif" font-size="20" font-weight="400" fill="#172233" text-anchor="start">α = uₜ / (uₜ + uᵣ)</text>
+<text x="775" y="346" font-family="Cambria Math,STIX Two Math,serif" font-size="20" font-weight="400" fill="#172233" text-anchor="start">β = uᵣ / (uₜ + uᵣ)</text>
+<text x="775" y="391" font-family="Cambria Math,STIX Two Math,serif" font-size="20" font-weight="400" fill="#172233" text-anchor="start">m = max(uₜ, uᵣ)</text>
+<text x="775" y="436" font-family="Cambria Math,STIX Two Math,serif" font-size="20" font-weight="400" fill="#172233" text-anchor="start">Δp = α T(m) + β R(m)</text>
+<text x="766" y="490" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="400" fill="#5b6678" text-anchor="start">Pure translation and pure rotation remain unchanged.</text>
+</svg>
