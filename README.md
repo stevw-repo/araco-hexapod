@@ -9,9 +9,7 @@ I began the wider Araco project in 2022 and this repository contains its third g
 
 This document is both a project tour and a technical write-up. It starts with the physical design, then develops the mathematics and software one layer at a time. Equations are paired with intuition so that the README remains useful to robotics developers, students, makers, and anyone assessing the project as research.
 
-[![Poster frame from an earlier physical walking demonstration](docs/assets/readme/araco-physical-demo-poster.jpg)](docs/assets/readme/araco-physical-demo.mp4)
-
-*Physical walking demonstration—select the image to open the MP4. This footage comes from an earlier controller using the same robot geometry; the present repository currently drives the Gazebo model while keeping the locomotion layer backend-independent.*
+https://github.com/user-attachments/assets/426f452e-7470-4307-b021-07683b961a9c
 
 ## Contents
 
