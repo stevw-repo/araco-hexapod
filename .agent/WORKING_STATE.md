@@ -15,6 +15,12 @@ Repository maintenance note: the user renamed the GitHub repository on
 (`0` ahead, `0` behind). The continuity updates are being checkpointed on this
 branch as the user-requested synchronization.
 
+Merge readiness was rechecked on 2026-08-24. `main` is an ancestor of the
+current branch: the branch is eight commits ahead and zero behind, so it can be
+integrated with a fast-forward (`--ff-only`) and has no merge conflict surface.
+The user approved committing this verification note, fast-forwarding `main`,
+and pushing `main` on 2026-08-24; final remote verification remains required.
+
 The immediate SLAM-drift correction is implemented. Repeated operator routes
 04–08 were suspended and replaced with short synchronized trials. Those trials
 isolated the simulator camera-IMU timestamp path as defective: over 90% of
@@ -110,6 +116,10 @@ triggered `SOURCE_STALE` are also invalid and are not acceptance evidence.
   the deleted `/tmp` evidence.
 - `gz sdf -k src/araco_gazebo/worlds/rgbd_validation_v0.sdf`: valid.
 - Focused navigation, profile-composition, and scorer tests pass.
+- 2026-08-24 fresh verification at `308c5f6`: `colcon build --symlink-install`
+  completed all 11 packages, and `colcon test` plus
+  `colcon test-result --verbose` reported `434 tests, 0 errors, 0 failures,
+  26 skipped`. The worktree was clean immediately after verification.
 - The earlier `386 tests, 0 errors, 0 failures, 23 skipped` result covered only
   `araco_navigation`, `araco_gazebo`, `araco_bringup`, and `araco_system_tests`.
   It never exercised `araco_description` or `araco_perception`.
