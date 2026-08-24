@@ -2996,3 +2996,76 @@ The revert stands regardless, on a reason that does not depend on the cause:
 Gate 5's simulated duration is excluded from the budget, so the measurement was
 never needed. Adding load to that scorer to obtain a number nothing consumes is
 not worth even an unproven risk.
+
+## 2026-08-23 — Unblock route 09 from Gate 6, and defer the simulation watchdogs
+
+Status: decided by the operator at the end of the 2026-08-23 session. Two
+launch changes made earlier the same evening were reverted; the tree carries no
+source changes from this session.
+
+### Decision 1 — Gate 6 is not a prerequisite for route 09
+
+An earlier handoff recorded route 09 as "blocked on Gate 6". **That was a
+policy, not a technical dependency, and it is withdrawn.** Gate 6 certifies
+harness repeatability across gates 0-5. Route 09 is a separate operator trial
+with its own profile (`gazebo_perception_v0`) and its own scorer
+(`araco_slam_score`). Nothing in the SLAM acceptance path consumes a Gate 6
+result.
+
+The cost of not challenging it was a full day: four Gate 6 attempts, none
+passing, against a blocker that turned out to be a simulator characteristic
+rather than an Araco defect. The operator's objection — that the simulator had
+been fine and SLAM was already under test — was correct.
+
+This does not retire Gate 6. It remains the repeatability gate and should pass
+before results are claimed as reproducible. It is no longer sequenced ahead of
+route 09.
+
+### Decision 2 — defer sizing the simulation watchdogs until a symptom appears
+
+The measurement is in hand: `/joint_states` runs an 8.32 ms median and a
+16.09 ms p99, then gaps **334.62 ms**, against `joint_state_timeout_s` of
+0.1 s. One missed sample latches `FAULT_HOLD`. Measured spurious-fault rate is
+5.8% of gate 1-4 launches since 2026-08-22.
+
+The obvious change — raise the watchdogs for simulation profiles only, sized
+from that distribution, leaving the physical contract at 0.1 s — is **not being
+made now**. Reasons:
+
+- The rate is a relaunch-level annoyance for an operator trial, not a blocker.
+  It only compounds into a 71% failure probability across a 21-launch Gate 6
+  attempt, and Gate 6 is no longer sequenced first.
+- It is a safety-contract change. It needs its own entry, and
+  `maximum_detection_s` — currently 0.11 s for joint state — must move with the
+  watchdogs or Gate 5's detection assertions will contradict them.
+- The stall's *frequency* rests on a single observation. Sizing a safety
+  parameter from n=1 is the same error that produced the reverted changes.
+
+Trigger to revisit: a route 09 run interrupted by a spurious `FAULT_HOLD`, or a
+decision to pursue a Gate 6 pass. Either supplies a concrete symptom to size
+against instead of a gate score.
+
+If taken up, the shape is known. Both policy artifacts are
+`deployment_scope: simulator_only` and no physical policy artifact exists, so a
+simulation-only change cannot reach hardware by construction.
+
+### Decision 3 — revert the arbiter bring-up changes
+
+Two changes to `gazebo.launch.py` and `scripts/lifecycle_transition` — one
+process per node rather than per transition, then starting that process before
+the supervisor arms — were reverted. Both were built on a correlation mined from
+launch logs between faults and the `/araco/command_arbiter` lifecycle window.
+Direct measurement disproved it: the stall is a publication problem inside the
+simulator, not a discovery or delivery one, since the controller state topics
+arriving at 234 Hz over the same transport never stalled.
+
+Both changes were harmless, both smoke-tested clean, and both are arguably
+better wiring. Neither fixed anything, and keeping unproven changes in a
+safety-adjacent bring-up path costs more in future confusion than the wiring is
+worth. Recorded here so they are not rediscovered and reapplied.
+
+**Method note.** Log mining produced a confident false lead that cost two
+15-minute runs; direct instrumentation settled the question in one 70-second
+run. The retained logs record faults but never near-misses, so no amount of
+mining could have measured the gap distribution. When the question is "how big
+and how often", instrument it.

@@ -1,11 +1,19 @@
 # Araco Hexapod — Working State
 
-Updated: 2026-08-22
+Updated: 2026-08-24
 Machine: `stevw-s14-Stealth-14Studio-A13VF` (Ubuntu 24.04.4 LTS)
 Location: these continuity files moved from `docs/agent/` to `.agent/` on
 2026-08-18, committed as `6b23132`.
 
 ## Current goal and result
+
+Repository maintenance note: the user renamed the GitHub repository on
+2026-08-24. The local `origin` was updated and locally verified as
+`https://github.com/stevw-repo/Araco-Hexapod.git` for both fetch and push. A
+2026-08-24 fetch completed, and the current
+`fix/gate0-tests-and-relay-exec-bit` branch matched its upstream at that point
+(`0` ahead, `0` behind). The continuity updates are being checkpointed on this
+branch as the user-requested synchronization.
 
 The immediate SLAM-drift correction is implemented. Repeated operator routes
 04–08 were suspended and replaced with short synchronized trials. Those trials
@@ -1026,6 +1034,118 @@ symlinks created at install time, which would remove the trap. Not done,
 because it changes package install behavior and was out of scope for the run
 that found it.
 
+## The 2026-08-23 Gate 6 campaign — four attempts, no pass, one real finding
+
+Four attempts were made. None produced three repetitions. The chronology is not
+worth preserving; what follows is what it established.
+
+| Run | Outcome |
+| --- | --- |
+| `gate_6_20260823_suitebudget` 11:42 | died at preflight gate 3, machine loaded |
+| `gate_6_20260823_suitebudget_02` 19:57 | died at preflight gate 5, machine loaded |
+| `gate_6_20260823_suitebudget_03` 22:05 | preflight all six PASS; repetition 1 complete in 313.2 s; repetition 2 died at gate 2 |
+| `gate_6_20260823_prearmed` 23:09 | preflight all six PASS; repetition 1 died at gate 5 in 293.2 s |
+
+### `suite_wall_budget` is decided and twice measured inside its limit
+
+`planned_complete_suite_sim_s` was raised 100.0 to 145.0 on 2026-08-23, moving
+the limit to 350.0 s. Two complete repetitions have since been measured at
+**313.2 s and 293.2 s**, against `forcekill_01` repetitions of 298.3, 292.1 and
+323.4 s. The number is sound. The check still needs three repetitions in one run
+to be formally discharged.
+
+### The blocker is an intermittent spurious `FAULT_HOLD`
+
+The runtime reaches `HOLDING` at full readiness, then a joint-state or
+controller-state sample arrives late, the supervisor latches `FAULT_HOLD`, and
+`wait_for_holding` aborts the launch. Readiness typically recovers within
+240-600 ms. **Nothing the robot does is wrong** — the gate that failed this way
+on 2026-08-23 recorded a maximum leg error of 3.27e-07 rad and contact duty 1.0
+on all six feet.
+
+Measured over every retained launch log with supervisor telemetry, excluding
+Gate 5 which injects faults deliberately:
+
+| Window | Gate 1-4 launches | Reached `FAULT_HOLD` | Rate |
+| --- | --- | --- | --- |
+| All time | 96 | 9 | 9.4% |
+| On/after 2026-08-22, post orphan isolation | 52 | 3 | 5.8% |
+
+Seven of the nine have identified, since-fixed causes — five from the
+2026-08-18 software-GL regression, one from orphan contamination, one from the
+GL investigation itself. Reason codes seen: `18` `JOINT_STATE_STALE`, `20`
+`CONTROLLER_NOT_READY`, `23` `TIME_DISCONTINUITY`, depending on which readiness
+bits happen to lapse.
+
+**At 5.8% per launch and about 21 launches per Gate 6 attempt, an attempt
+survives only 29% of the time.** That, not any threshold, is why Gate 6 has not
+passed.
+
+### Measured cause: `/joint_states` can gap 335 ms against a 100 ms watchdog
+
+Measured directly on 2026-08-23 with a monitor subscribed at matching
+`SensorDataQoS` to every armed stream, against a manual `gazebo_ci_v0` launch of
+55 s. The fault reproduced during the measurement.
+
+| Stream | Samples | Median | p99 | Max | >100 ms |
+| --- | --- | --- | --- | --- | --- |
+| `/joint_states` | 6565 | 8.32 ms | 16.09 ms | **334.62 ms** | 1 |
+| `/araco/locomotion/status` | 2000 | 29.59 ms | 30.96 ms | **339.21 ms** | 1 |
+| `/leg_trajectory_controller/controller_state` | 12891 | 4.16 ms | 8.11 ms | 19.23 ms | 0 |
+| `/gimbal_trajectory_controller/controller_state` | 12681 | 4.16 ms | 8.20 ms | 19.24 ms | 0 |
+
+`/joint_states` runs an 8 ms median against a 100 ms watchdog — 12x margin — and
+then misses one deadline by 3.3x. Locomotion status stalls in the same instant,
+which is expected since it is derived from joint state. The controller *state
+topics* did not stall at all, which is why the readiness bit pattern differs
+between incidents.
+
+**The frequency is not established: this is one stall in one launch.** Whether
+stalls are rare and this one was unlucky, or concentrated near startup, is open.
+The mismatch itself does not depend on knowing the rate.
+
+The monitor is at
+`/tmp/claude-1000/.../scratchpad/gap_monitor.py` and will not survive a reboot.
+Rewriting it is 60 lines: subscribe at `qos_profile_sensor_data` to the four
+streams above plus `/araco/safety/status`, record `time.monotonic()` deltas per
+topic, print percentiles. Worth re-creating in `araco_system_tests` if this is
+picked up again.
+
+### Two hypotheses were tried and reverted — do not repeat them
+
+Both were built on a log-mined correlation between faults and the
+`/araco/command_arbiter` lifecycle bring-up window, and both were disproven:
+
+1. **One `lifecycle_transition` process per node instead of one per transition.**
+   Reduced the arbiter's two transitions from 1.3-2.3 s apart to 1.4 ms apart.
+   The next run faulted anyway, 0.37 s *before* the first transition completed.
+2. **Starting that process before the supervisor arms, waiting for `HOLDING`
+   internally.** Cut arbiter bring-up to 32 ms after `HOLDING` with zero new DDS
+   participants in the armed window. The next run faulted anyway, with nothing
+   having started within 1.4 s of the fault.
+
+The direct measurement then showed the stall is a *publication* problem inside
+the simulator, not a delivery or discovery one — a delivery problem would have
+hit the controller state topics arriving at 234 Hz over the same transport.
+Both changes were reverted on 2026-08-23. They were harmless and arguably better
+wiring, but they fixed nothing, and the clustering that suggested them is
+incidental: the arbiter window is simply where the runtime is armed and idle.
+
+**Method note worth keeping.** Log mining produced a confident false lead that
+cost two 15-minute runs. Direct instrumentation settled it in one 70-second run.
+When the question is "how big and how often", measure it; do not infer it from
+correlations in logs that only record the failures and never the near-misses.
+
+### Gate 6 is not a prerequisite for route 09
+
+An earlier handoff recorded route 09 as "blocked on Gate 6". That was a policy,
+not a technical dependency, and it went unchallenged for a full day of work.
+Gate 6 certifies harness repeatability across gates 0-5; route 09 is a separate
+operator trial with its own scorer and profile. The spurious `FAULT_HOLD` can
+interrupt a route run — condition evaluation stays active in `MOTION_ENABLED` —
+but at roughly 5.8% per launch that is a relaunch, not a blocker.
+
+
 ## Remaining risks
 
 - A complete route has not yet passed with the corrected estimator and scorer.
@@ -1043,9 +1163,22 @@ that found it.
   matched the intended signatures on all three variants of the defect, and
   `no_unclassified_error_or_fatal` passed over a whole Gate 6 log tree. The
   earlier note that it had never run live is withdrawn.
-- `suite_wall_budget` is the only failing Gate 6 check, and it is a threshold
-  question rather than a behavior one. Raising it without a decision entry would
-  be fitting the contract to the measurement.
+- `suite_wall_budget` is decided and **twice measured inside its limit**, at
+  313.2 s and 293.2 s against 350.0 s. Three repetitions in a single run are
+  still needed to discharge the check formally.
+- **An intermittent spurious `FAULT_HOLD` blocks Gate 6 and can interrupt any
+  run**, including route 09, since condition evaluation stays active in
+  `MOTION_ENABLED`. Measured at 5.8% of gate 1-4 launches since 2026-08-22. The
+  cause is measured — `/joint_states` can gap 335 ms against a 100 ms watchdog —
+  but the *frequency* of the stall is not, being one observation. At 5.8% per
+  launch this is a relaunch for an operator trial and a 71% chance of losing a
+  21-launch Gate 6 attempt.
+- **Machine load makes it worse but does not cause it.** Two of the four
+  2026-08-23 attempts were lost with every sub-gate running 8-59% slower than
+  the `forcekill_01` baseline; the other two ran on an idle machine and failed
+  the same way. Still check the machine is idle before a long run, and treat a
+  materially slower sub-gate as a starved run rather than a finding — but do not
+  attribute the fault itself to load.
 - Gate 6's orphan reaper can report a killed-but-unreaped server as `SURVIVED`,
   because `_process_alive()` uses `os.kill(pid, 0)`, which succeeds on a zombie.
   It overstates leakage rather than hiding it. One such record appears in
@@ -1061,28 +1194,67 @@ that found it.
 
 ## Exact next step
 
-Route 09 remains blocked on Gate 6, by one check. **Gates 0-5 all pass**, now
-in both variants of the upstream defect, and Gate 6 passes twenty of its
-twenty-one checks including all three complete repetitions and every
-repetition-comparison check.
+**Run route 09.** It is not blocked on Gate 6 — see the `DECISIONS.md` entry of
+2026-08-23. Gate 6 remains the repeatability gate and should pass before results
+are claimed reproducible, but it is no longer sequenced ahead of the acceptance
+trial.
 
-**`suite_wall_budget` was decided on 2026-08-23 and needs one clean
-verification run.** `planned_complete_suite_sim_s` was raised from 100.0 to
-145.0, its measured value across the four simulation-paced gates, which moves
-the limit to 350.0 s against observed repetitions of 298.3 s, 292.1 s and
-323.4 s. The suite was not trimmed: median real-time factor is 0.92 against a
-0.80 floor, so the suite grew rather than slowed. See the `DECISIONS.md` entry
-of 2026-08-23.
+**Prerequisite: the LiteStar PXN-2113 Pro gamepad must be connected.**
+`joy_node` is pinned to that exact `device_name` and `gazebo_perception_v0` has
+no keyboard path. As of the 2026-08-23 handoff no `/dev/input/js*` existed on
+this machine. Check with `ls /dev/input/js*` before launching.
 
-Two things to carry forward:
+A non-interactive shell does not read `~/.bashrc`, so if the launch is started
+by tooling rather than a terminal, export the NVIDIA EGL selection first or the
+cameras render on the CPU:
 
-- **The margin is 8.2% over the worst observed repetition, while the spread
-  within a single run was already 10.7%.** If this check starts failing
-  intermittently, the next lever is the pinned 60 s allowance, not the planned
-  duration, which is measured and has no room to absorb anything.
-- **Verification is outstanding.** The 11:48 rerun was starved by an unrelated
-  workload on this machine and failed at preflight gate 3 with zero cases
-  scored. It proves nothing about the threshold and must not be cited.
+```bash
+export __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/10_nvidia.json
+export __NV_PRIME_RENDER_OFFLOAD=1
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+```
+
+Terminal one:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+ros2 launch araco_bringup gazebo.launch.py \
+  profile:=gazebo_perception_v0 \
+  database_path:=/tmp/araco_rgbd_acceptance_09.db
+```
+
+Terminal two:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+ros2 run araco_system_tests araco_slam_score \
+  /tmp/araco_slam_acceptance_score_09
+```
+
+Drive east/red, north/blue, west/green, south/yellow, then origin/white. At the
+origin, align with the +X floor arrow and keep the robot stationary until the
+scorer reports convergence. **Do not move the gimbal during this first
+acceptance route**, even though the isolated visual-only gimbal trial was clean.
+
+Both paths were clear at handoff — no stale database or score directory.
+
+Three things to carry forward:
+
+- **A spurious `FAULT_HOLD` can interrupt the route.** Condition evaluation
+  stays active in `MOTION_ENABLED`, and the fault fires in about 5.8% of
+  launches. If it happens, it is the known simulator stall — relaunch, and note
+  it, because a route interrupted this way is the agreed trigger for sizing the
+  simulation watchdogs. It is not an Araco defect and not worth debugging again.
+- **Do not re-attempt the arbiter bring-up changes.** Both were reverted on
+  2026-08-23 with the reasoning recorded; the correlation that motivated them is
+  incidental.
+- **The wall-budget margin is 8.2% over the worst observed repetition, while
+  the spread within a single run was already 10.7%.** If `suite_wall_budget`
+  starts failing intermittently, the next lever is the pinned 60 s allowance,
+  not the planned duration, which is measured and has no room to absorb
+  anything.
 
 Required order:
 
@@ -1117,13 +1289,44 @@ Required order:
 8. Done 2026-08-23. `suite_wall_budget` was decided: the planned simulated
    duration was raised to its measured 145.0 s, nothing else changed. Gate 3
    now reports `simulated_s` so the number stays auditable.
-9. **Current step. Rerun Gate 6 on a quiet machine** to confirm 21 of 21.
-   Gates 0-5 do not need rerunning unless their inputs change. Before any
-   sequential run, and after it, check `pgrep -f '^gz sim'` and SIGKILL what it
-   finds — and check `uptime` and `ps -eo pcpu,pid,args --sort=-pcpu | head`,
-   because a gate suite starved of CPU fails in ways that look like Araco
-   defects. This is how the 11:48 attempt was lost.
-10. Then run route 09.
+9. Done 2026-08-23 22:05, and it changed the problem. Preflight gates 0-5 all
+   passed, repetition 1 passed all six sub-gates in 313.2 s inside the 350.0 s
+   limit, and repetition 2 died at gate 2 on a spurious `FAULT_HOLD` with the
+   robot behaving perfectly. `suite_wall_budget` is no longer the blocker; the
+   intermittent warm-up fault is.
+10. Done 2026-08-23 23:2x. The cause was **measured, not inferred**: the
+   simulator stalls about 335 ms roughly once per launch, against a 0.1 s
+   joint-state watchdog. Two launch changes made earlier that evening rest on a
+   hypothesis this disproved; they are harmless but fix nothing.
+11. Reverted 2026-08-23. Both launch changes were backed out — neither was
+   proven and the measurement disproved the hypothesis behind them. The tree is
+   clean apart from this document.
+12. **Current step: run route 09.** Gate 6 is *not* a technical prerequisite,
+   and the note that route 09 was "blocked on Gate 6" was a policy recorded in
+   an earlier handoff, not a dependency. Gate 6 certifies harness
+   repeatability; route 09 is a separate operator trial with its own scorer.
+   Requires the **LiteStar PXN-2113 Pro** gamepad connected — `joy_node` is
+   pinned to that `device_name` and `gazebo_perception_v0` has no keyboard
+   path.
+13. Deferred until a symptom motivates it: **sizing the simulation watchdogs**
+   from the measured distribution — median 8 ms, p99 16 ms, worst 335 ms —
+   keeping the physical contract at 0.1 s. If a route run is interrupted by a
+   spurious `FAULT_HOLD`, that is the trigger. It is a safety-contract change
+   needing a `DECISIONS.md` entry, and `maximum_detection_s` must move with the
+   watchdogs or Gate 5's detection assertions will contradict them.
+14. Deferred: rerun Gate 6 for three clean repetitions. At the 5.8% per-launch
+   fault rate, 21 consecutive launches survive only 29% of the time, so this is
+   not worth attempting until the watchdog question is settled. Gates 0-5 do not need
+   rerunning unless their inputs change. Before any sequential run, and after
+   it, check `pgrep -f '^gz sim'` and SIGKILL what it finds — and check `uptime`
+   and `ps -eo pcpu,pid,args --sort=-pcpu | head`, because a gate suite starved
+   of CPU fails in ways that look like Araco defects. This is how both the 11:48
+   and the 19:57 attempts were lost on 2026-08-23. The run needs roughly 35
+   minutes with nothing else competing for the machine — no browser start, no
+   build, no second agent. A non-interactive shell does not read `~/.bashrc`, so
+   export `__EGL_VENDOR_LIBRARY_FILENAMES`, `__NV_PRIME_RENDER_OFFLOAD` and
+   `__GLX_VENDOR_LIBRARY_NAME` explicitly or gates render on the CPU.
+15. Route 09 acceptance closes the SLAM correction.
 
 Reproduction for Defect C, which does not need the gate harness:
 
