@@ -15,11 +15,12 @@ Repository maintenance note: the user renamed the GitHub repository on
 (`0` ahead, `0` behind). The continuity updates are being checkpointed on this
 branch as the user-requested synchronization.
 
-Merge readiness was rechecked on 2026-08-24. `main` is an ancestor of the
-current branch: the branch is eight commits ahead and zero behind, so it can be
-integrated with a fast-forward (`--ff-only`) and has no merge conflict surface.
-The user approved committing this verification note, fast-forwarding `main`,
-and pushing `main` on 2026-08-24; final remote verification remains required.
+Merge readiness was rechecked on 2026-08-24. Before integration, `main` was an
+ancestor of `fix/gate0-tests-and-relay-exec-bit`; the feature branch was eight
+commits ahead and zero behind. The user approved committing the verification
+note, fast-forwarding `main`, and pushing it. The fast-forward completed without
+conflicts, and local `main` and `origin/main` were verified at `65dd3b7` after
+the push.
 
 The immediate SLAM-drift correction is implemented. Repeated operator routes
 04–08 were suspended and replaced with short synchronized trials. Those trials
