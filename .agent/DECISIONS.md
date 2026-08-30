@@ -3069,3 +3069,63 @@ worth. Recorded here so they are not rediscovered and reapplied.
 run. The retained logs record faults but never near-misses, so no amount of
 mining could have measured the gap distribution. When the question is "how big
 and how often", instrument it.
+
+## 2026-08-30 — Replace the perception and navigation stack
+
+Status: accepted. Approved architecture in
+`docs/superpowers/specs/2026-08-30-perception-navigation-architecture-design.md`.
+
+Decision:
+
+- Remove `araco_perception` and `araco_navigation` entirely and rebuild both,
+  rather than extend the existing stack.
+- Make leg odometry plus a body-mounted IMU the odometry backbone, fused in a
+  `robot_localization` EKF. rtabmap stops producing odometry and consumes it.
+- Add a 360° 2D lidar on a rigid mast from `base_link`, centered on the gimbal
+  yaw axis, above the camera. Not on the gimbal, not under the body.
+- Add a body IMU at `base_link`. The camera IMU is retained but is not the
+  estimator's primary.
+- Enter Nav2 through the existing command arbiter as an arbitrated, safety-gated
+  source, never as a direct `cmd_vel` binding.
+- Shelve visual-inertial odometry.
+
+Rationale:
+
+The old stack made rtabmap responsible for odometry and mapping together, so
+RGB-D visual odometry was the single point of failure for the whole chain. Its
+documented failure — odometry dies within a second of facing a blank wall in the
+validation arena — was handled by a driving procedure that always faced the
+direction of travel. An autonomous planner rotates the robot to whatever heading
+it wants, so that workaround cannot survive Nav2. Rewiring rtabmap to consume
+external odometry removes the failure mode rather than working around it.
+
+Leg odometry is tractable because of properties the robot already has: joint
+states at 125 Hz, `duty_factor: 0.5` keeping exactly three feet planted, and an
+explicit `phase_groups` declaration. Three contact points over-determine the body
+twist, so the least-squares residual doubles as a live slip-quality signal
+driving EKF covariance.
+
+VIO was shelved on the same reasoning. Its Phase 0 probe passed all five
+preregistered gates on unchanged thresholds, so this is not a stop rule firing —
+it is a scope decision. Monocular VIO exists to recover odometry from a camera
+and an IMU when nothing else is available. This robot has legs, and leg odometry
+plus a body IMU covers the same failure mode without a GPL source build or
+monocular scale recovery.
+
+The lidar mount was decided against measured geometry. `gimbal_yaw_joint` is
+yaw-only at `[-0.005, 0, 0.08435]`, so a gimbal mount would keep the scan plane
+horizontal — but it would inject a moving joint into the primary SLAM sensor's TF
+chain, make map quality depend on an operator control, and gain nothing, since a
+360° lidar needs no aiming. A mount under the body sits inside the leg workspace
+(femur 0.12 m, tibia 0.12 m) where three legs swing continuously, producing
+phantom returns correlated with gait phase.
+
+Consequences:
+
+- The tree does not build until sub-project 0 resolves dangling references in 12
+  files. This was accepted deliberately; rewiring bringup requires knowing what
+  replaces the perception artifacts.
+- The route 09 acceptance, the package test baseline, and every frozen profile
+  fingerprint are void and must be re-derived against the new stack.
+- All prior perception evidence was removed. It remains in git history on branch
+  `codex/rgbd-imu-aiding` at `b6eb511`.
